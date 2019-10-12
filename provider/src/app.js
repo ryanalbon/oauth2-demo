@@ -3,26 +3,16 @@ const express = require('express');
 const expressPinoLogger = require('express-pino-logger');
 const joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
-const mongodb = require('mongodb');
 
 const logger = require('./logger');
+const reqContainerMiddleware = require('./req-container-middleware');
+const reqIDMiddleware = require('./req-id-middleware');
 
 const app = express();
 
-const cache = new Map();
-
-async function getDBConnection() {
-  const CACHE_KEY = 'db_connection';
-
-  if (!cache.has(CACHE_KEY)) {
-    const connection = await mongodb.MongoClient.connect('mongodb://127.0.0.1:27017', { useNewUrlParser: true, useUnifiedTopology: true });
-    cache.set(CACHE_KEY, connection);
-  }
-
-  return cache.get(CACHE_KEY);
-}
-
+app.use(reqIDMiddleware);
 app.use(expressPinoLogger({ logger }));
+app.use(reqContainerMiddleware);
 
 /**
  * RFC 6749 §3.1
@@ -54,8 +44,6 @@ const userSchema = joi.object().unknown(false).keys({
 });
 
 app.post('/join', express.json(), async (req, res) => {
-  const db = await getDBConnection();
-
   const { error, value } = userSchema.validate(req.body);
   const { password, ...user } = value;
 
@@ -65,7 +53,7 @@ app.post('/join', express.json(), async (req, res) => {
       .end();
   }
 
-  const emailTaken = await db.db('oauth2_provider_db').collection('users').findOne({ email: user.email })
+  const emailTaken = await req.container.get('dao').users().findOne({ email: user.email })
 
   if (emailTaken) {
     return res.status(400).end();
@@ -75,7 +63,7 @@ app.post('/join', express.json(), async (req, res) => {
 
   Object.assign(user, { createdAt: Date.now(), passwordHash });
 
-  await db.db('oauth2_provider_db').collection('users').insertOne(user);
+  await req.container.get('dao').users().insertOne(user);
 
   res.status(201)
     .json(viewUser(user))
@@ -94,9 +82,8 @@ app.post('/login', express.json(), async (req, res) => {
     return res.status(400).json({ error }).end();
   }
 
-  const db = await getDBConnection();
   const criteria = { email: value.email };
-  const user = await db.db('oauth2_provider_db').collection('users').findOne(criteria);
+  const user = await req.container.get('dao').users().findOne(criteria);
 
   if (!user) {
     return res.status(401).end();

@@ -16,7 +16,8 @@
     "express-pino-logger": "^4.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.3.2",
-    "pino": "^5.13.4"
+    "pino": "^5.13.4",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "nodemon": "^1.19.3",
