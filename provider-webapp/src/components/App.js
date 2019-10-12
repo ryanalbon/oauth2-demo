@@ -1,10 +1,14 @@
 import React from 'react';
 
 import JoinForm from './JoinForm';
+import LoginForm from './LoginForm';
 
 function App() {
   return (
-    <JoinForm />
+    <main>
+      <JoinForm />
+      <LoginForm />
+    </main>
   );
 }
 
