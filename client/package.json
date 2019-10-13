@@ -1,0 +1,22 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "express": "^4.17.1",
+    "express-pino-logger": "^4.0.0",
+    "pino": "^5.13.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.3",
+    "pino-pretty": "^3.2.2"
+  }
+}

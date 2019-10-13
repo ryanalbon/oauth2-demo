@@ -14,7 +14,7 @@ class NotesList extends React.Component {
     }
 
     return (
-      <div>{this.props.notes.data.map(note => <div>{note.body}</div>)}</div>
+      <div>{this.props.notes.data.map(note => <div key={note.id}>{note.body}</div>)}</div>
     );
   }
 }
